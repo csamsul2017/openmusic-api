@@ -42,7 +42,6 @@ class AlbumsService {
     if (!result.rows.length) {
       throw new NotFoundError('song failed to edit, id not found');
     }
-    // return result.rows[0];
     return {
       ...result.rows[0],
       songs: songResult.rows,

@@ -12,8 +12,8 @@ const init = async () => {
   const albumsService = new AlbumsService();
   const songsService = new SongsService();
   const server = Hapi.server({
-    port: 5000,
-    host: 'localhost',
+    port: process.env.PORT || 5000,
+    host: process.env.HOST || 'localhost',
   });
 
   await server.register([
@@ -34,10 +34,7 @@ const init = async () => {
   ]);
 
   server.ext('onPreResponse', (request, h) => {
-    // mendapatkan konteks response dari request
     const { response } = request;
-
-    // penanganan client error secara internal.
     if (response instanceof ClientError) {
       const newResponse = h.response({
         status: 'fail',
