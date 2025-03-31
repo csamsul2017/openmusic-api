@@ -37,17 +37,16 @@ exports.up = (pgm) => {
       type: 'SMALLINT',
       notNull: true,
     },
-    performer: {
+    genre: {
       type: 'TEXT',
       notNull: true,
     },
-    genre: {
+    performer: {
       type: 'TEXT',
       notNull: true,
     },
     duration: {
       type: 'INTEGER',
-      notNull: true,
     },
     albumId: {
       type: 'VARCHAR(50)',

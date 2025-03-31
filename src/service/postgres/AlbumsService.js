@@ -19,7 +19,7 @@ class AlbumsService {
     const result = await this._pool.query(query);
 
     if (!result.rows[0].id) {
-      throw new InvariantError('data failed to add');
+      throw new InvariantError('song failed to add');
     }
 
     return result.rows[0].id;
@@ -34,7 +34,7 @@ class AlbumsService {
     const result = await this._pool.query(query);
 
     if (!result.rows.length) {
-      throw new NotFoundError('transaction failed to edit, id not found');
+      throw new NotFoundError('song failed to edit, id not found');
     }
     return result.rows[0];
   }
