@@ -31,12 +31,22 @@ class AlbumsService {
       values: [id],
     };
 
+    const songQuery = {
+      text: 'SELECT id, title, performer FROM songs WHERE "albumId" = $1',
+      values: [id],
+    };
+
     const result = await this._pool.query(query);
+    const songResult = await this._pool.query(songQuery);
 
     if (!result.rows.length) {
       throw new NotFoundError('song failed to edit, id not found');
     }
-    return result.rows[0];
+    // return result.rows[0];
+    return {
+      ...result.rows[0],
+      songs: songResult.rows,
+    };
   }
 
   async editAlbumById({ id, name, year }) {
