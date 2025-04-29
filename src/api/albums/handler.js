@@ -5,12 +5,12 @@ class AlbumsHandler {
   constructor(service, validator) {
     this._service = service;
     this._validator = validator;
-
     autoBind(this);
   }
 
   async postAlbumHandler(request, h) {
     this._validator.validateAlbumsPayload(request.payload);
+
     const { name, year, coverUrl = null } = request.payload;
     const albumId = await this._service.addAlbum({ name, year, coverUrl });
 
@@ -37,39 +37,9 @@ class AlbumsHandler {
       .code(200);
   }
 
-  // async postAlbumHandler(request, h) {
-  //   try {
-  //     // Validasi payload
-  //     this._validator.validateAlbumsPayload(request.payload);
-
-  //     // Ambil data dari request payload
-  //     const { name, year } = request.payload;
-
-  //     // Tambahkan album dan ambil albumId
-  //     const albumId = await this._service.addAlbum({ name, year });
-
-  //     // Return response jika berhasil
-  //     return h
-  //       .response({
-  //         status: 'success',
-  //         message: 'data successfully added',
-  //         data: { albumId },
-  //       })
-  //       .code(201);
-  //   } catch (error) {
-  //     // Tangani error
-  //     console.error(error); // Bisa ganti dengan log yang lebih detail jika perlu
-  //     return h
-  //       .response({
-  //         status: 'error',
-  //         message: error.message || 'Internal Server Error',
-  //       })
-  //       .code(500);
-  //   }
-  // }
-
   async putAlbumByIdHandler(request, h) {
     this._validator.validateAlbumsPayload(request.payload);
+
     const { id } = request.params;
     const { year, name } = request.payload;
 
@@ -85,6 +55,7 @@ class AlbumsHandler {
 
   async deleteAlbumByIdHandler(request, h) {
     const { id } = request.params;
+
     await this._service.deleteAlbumById(id);
 
     return h
@@ -98,9 +69,9 @@ class AlbumsHandler {
   async postCoverAlbumHandler(request, h) {
     const { cover } = request.payload;
     const { id: albumId } = request.params;
+
     this._validator.validateImageHeaders(cover.hapi.headers);
 
-    // const filename = await this._service.writeFile(data, data.hapi);
     const result = await this._service.writeFile(cover, cover.hapi);
     const filename = `http://${config.app.host}:${config.app.port}/albums/images/${result}`;
 

@@ -9,11 +9,9 @@ class CacheService {
         port: config.redis.port,
       },
     });
-
     this._client.on('error', (error) => {
       console.log(error);
     });
-
     this._client.connect();
   }
 

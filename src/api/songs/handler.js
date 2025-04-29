@@ -4,12 +4,12 @@ class SongsHandler {
   constructor(service, validator) {
     this._service = service;
     this._validator = validator;
-
     autoBind(this);
   }
 
   async postSongHandler(request, h) {
     this._validator.validateSongsPayload(request.payload);
+
     const { title, year, genre, performer, duration, albumId } =
       request.payload;
     const songId = await this._service.addSong({
@@ -58,9 +58,11 @@ class SongsHandler {
 
   async putSongByIdHandler(request, h) {
     this._validator.validateSongsPayload(request.payload);
+
     const { id } = request.params;
     const { title, year, genre, performer, duration, albumId } =
       request.payload;
+
     await this._service.editSongById({
       id,
       title,
@@ -70,6 +72,7 @@ class SongsHandler {
       duration,
       albumId,
     });
+
     return h
       .response({
         status: 'success',

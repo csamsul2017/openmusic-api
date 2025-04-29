@@ -24,7 +24,6 @@ class PlaylistsService {
 
   async addPlaylist(name, owner) {
     const id = `playlist-${nanoid(16)}`;
-
     const query = {
       text: 'INSERT INTO playlists (id, name, owner) VALUES($1, $2, $3) RETURNING id',
       values: [id, name, owner],
@@ -37,7 +36,6 @@ class PlaylistsService {
       }
       return result.rows[0].id;
     } catch (err) {
-      // throw new InvariantError('Terjadi kesalahan saat menambahkan playlist');
       console.log(err);
     }
   }
@@ -47,13 +45,8 @@ class PlaylistsService {
       text: `SELECT playlists.id, playlists.name, users.username FROM playlists LEFT JOIN users ON playlists.owner = users.id WHERE playlists.owner = $1`,
       values: [owner],
     };
-
-    // const query = {
-    //   text: `SELECT * FROM playlists WHERE owner = (SELECT username FROM users WHERE id = $1)`,
-    //   values: [id],
-    // };
-
     const result = await this._pool.query(query);
+
     return result.rows;
   }
 
@@ -62,7 +55,6 @@ class PlaylistsService {
       text: 'DELETE FROM playlists WHERE id = $1 RETURNING id',
       values: [id],
     };
-
     const result = await this._pool.query(query);
 
     if (!result.rows.length) {
@@ -97,7 +89,6 @@ class PlaylistsService {
       text: 'SELECT 1 FROM playlists_songs WHERE playlist_id = $1 AND song_id = $2',
       values: [playlistId, songId],
     };
-
     const result = await this._pool.query(query);
 
     if (result.rowCount) {
@@ -125,17 +116,13 @@ class PlaylistsService {
   }
 
   async addSongToPlaylist(playlistId, songId) {
-    try {
-      const result = await this._pool.query({
-        text: 'INSERT INTO playlists_songs (playlist_id, song_id) VALUES ($1, $2)',
-        values: [playlistId, songId],
-      });
+    const result = await this._pool.query({
+      text: 'INSERT INTO playlists_songs (playlist_id, song_id) VALUES ($1, $2)',
+      values: [playlistId, songId],
+    });
 
-      if (!result.rowCount) {
-        throw new InvariantError('Failed to add song to playlist');
-      }
-    } catch (error) {
-      throw new InvariantError('Gagal menambahkan lagu ke playlist.');
+    if (!result.rowCount) {
+      throw new InvariantError('Failed to add song to playlist');
     }
   }
 
@@ -149,12 +136,11 @@ class PlaylistsService {
       `,
       values: [id],
     };
-
     const result = await this._pool.query(query);
+
     if (!result.rows.length) {
       throw new NotFoundError('Playlist detail not found');
     }
-
     return result.rows[0];
   }
 
@@ -168,7 +154,6 @@ class PlaylistsService {
       `,
       values: [playlistId],
     };
-
     const result = await this._pool.query(query);
     return result.rows;
   }

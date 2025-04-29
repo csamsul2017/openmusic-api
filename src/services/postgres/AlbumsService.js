@@ -19,21 +19,19 @@ class AlbumsService {
       text: 'SELECT id FROM albums WHERE id = $1',
       values: [albumId],
     };
-
     const result = await this._pool.query(query);
+
     if (result.rowCount === 0) {
-      throw new NotFoundError('Album not found'); // atau bikin response 404
+      throw new NotFoundError('Album not found');
     }
   }
 
   async addAlbum({ name, year, coverUrl }) {
     const id = `album-${nanoid(16)}`;
-
     const query = {
       text: 'INSERT INTO albums VALUES($1, $2, $3, $4) RETURNING ID',
       values: [id, name, year, coverUrl],
     };
-
     const result = await this._pool.query(query);
 
     if (!result.rows[0].id) {
@@ -48,22 +46,19 @@ class AlbumsService {
       text: 'SELECT * FROM albums WHERE id = $1',
       values: [id],
     };
-
     const songQuery = {
       text: 'SELECT id, title, performer FROM songs WHERE "albumId" = $1',
       values: [id],
     };
-
     const result = await this._pool.query(query);
     const songResult = await this._pool.query(songQuery);
 
     if (!result.rows.length) {
       throw new NotFoundError('song failed to edit, id not found');
     }
-
     const album = result.rows[0];
+
     return {
-      // ...result.rows[0],
       id: album.id,
       name: album.name,
       year: album.year,
@@ -77,7 +72,6 @@ class AlbumsService {
       text: 'UPDATE albums SET name = $1, year = $2 WHERE id = $3 RETURNING id',
       values: [name, year, id],
     };
-
     const result = await this._pool.query(query);
 
     if (!result.rows.length) {
@@ -100,7 +94,6 @@ class AlbumsService {
   writeFile(file, meta) {
     const filename = +new Date() + meta.filename;
     const path = `${this._folder}/${filename}`;
-
     const fileStream = fs.createWriteStream(path);
 
     return new Promise((resolve, reject) => {
@@ -115,7 +108,6 @@ class AlbumsService {
       text: 'UPDATE albums SET cover = $1 WHERE id = $2 RETURNING id',
       values: [filename, albumId],
     };
-
     const result = await this._pool.query(query);
 
     if (!result.rows.length) {

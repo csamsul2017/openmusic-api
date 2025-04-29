@@ -32,8 +32,6 @@ class AlbumLikesHandler {
     const { id: userId } = request.auth.credentials;
 
     await this._albumsService.verifyAlbumExist(albumId);
-    // await this._service.verifyAlbumLikesExist(userId, albumId);
-
     await this._service.deleteAlbumLikes(userId, albumId);
 
     return h

@@ -13,23 +13,19 @@ class AlbumLikes {
       text: 'SELECT 1 FROM user_album_likes WHERE user_id = $1 AND album_id = $2 LIMIT 1',
       values: [userId, albumId],
     };
-
     const result = await this._pool.query(query);
 
     if (result.rowCount > 0) {
-      // dia akan mengembalikan true jika tidak ada like
       throw new InvariantError('Album sudah di like');
     }
   }
 
   async addAlbumLikes(userId, albumId) {
     const id = `albumLikes-${nanoid(16)}`;
-
     const query = {
       text: 'INSERT INTO user_album_likes VALUES ($1, $2, $3) RETURNING ID',
       values: [id, userId, albumId],
     };
-
     const result = await this._pool.query(query);
 
     if (!result.rows[0].id) {
@@ -45,6 +41,7 @@ class AlbumLikes {
       values: [userId, albumId],
     };
     const result = await this._pool.query(query);
+
     if (result.rowCount === 0) {
       throw new InvariantError('Like failed');
     }
@@ -74,7 +71,7 @@ class AlbumLikes {
       );
 
       return {
-        isCache: false, // bahwa ini bukan dari cache
+        isCache: false,
         result: likeCount,
       };
     }

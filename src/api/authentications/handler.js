@@ -13,9 +13,7 @@ class AuthenticationsHandler {
     this._validator.validatePostAuthenticationPayload(request.payload);
 
     const { username, password } = request.payload;
-
     const id = await this._usersService.verifyUserCred(username, password);
-
     const accessToken = this._tokenManager.generateAccessToken({
       id,
     });
@@ -39,12 +37,11 @@ class AuthenticationsHandler {
 
   async putAuthenticationHandler(request, h) {
     this._validator.validatePutAuthenticationPayload(request.payload);
-
     const { refreshToken } = request.payload;
-    await this._authenticationsService.verifyRefreshToken(refreshToken);
-    const { id, username } =
-      this._tokenManager.verifyRefreshToken(refreshToken);
 
+    await this._authenticationsService.verifyRefreshToken(refreshToken);
+
+    const { id } = this._tokenManager.verifyRefreshToken(refreshToken);
     const accessToken = this._tokenManager.generateAccessToken({
       id,
     });
