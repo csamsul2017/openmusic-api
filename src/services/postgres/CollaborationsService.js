@@ -1,6 +1,7 @@
 const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 const InvariantError = require('../../exceptions/InvariantError');
+const AuthorizationError = require('../../exceptions/AuthorizationError');
 
 class CollaborationsService {
   constructor() {
@@ -22,6 +23,19 @@ class CollaborationsService {
     return result.rows[0].id;
   }
 
+  async deleteCollaborator(playlistId, userId) {
+    const query = {
+      text: 'DELETE FROM collaborations WHERE playlist_id = $1 AND user_id = $2 RETURNING id',
+      values: [playlistId, userId],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rowCount) {
+      throw new InvariantError('Collaboration failed to delete');
+    }
+  }
+
   async verifyCollaborator(playlistId, userId) {
     const query = {
       text: 'SELECT * FROM collaborations WHERE playlist_id = $1 AND user_id = $2',
@@ -30,7 +44,7 @@ class CollaborationsService {
     const result = await this._pool.query(query);
 
     if (!result.rowCount) {
-      throw new InvariantError('Collaboration failed to verify');
+      throw new AuthorizationError('Collaboration failed to verify');
     }
   }
 }

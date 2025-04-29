@@ -111,6 +111,8 @@ class PlaylistsService {
       values: [playlistId],
     };
     const result = await this._pool.query(query);
+    console.log(playlistId, owner);
+    console.log(result);
 
     if (!result.rows.length) {
       throw new NotFoundError('Playlist not found');

@@ -3,7 +3,6 @@ const routes = (handler) => [
     method: 'POST',
     path: '/songs',
     handler: handler.postSongHandler,
-    options: { auth: 'openmusicapp_jwt' },
   },
   {
     method: 'GET',

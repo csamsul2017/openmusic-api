@@ -13,7 +13,9 @@ class CollaborationsHandler {
     this._validator.validatePostCollaborationPayload(request.payload);
     const { playlistId, userId } = request.payload;
     const { id: credentialId } = request.auth.credentials;
+    console.log('ok');
     await this._playlistsService.verifyPlaylistAccess(playlistId, credentialId);
+
     // await this._playlistsService.verifyPlaylistExists(playlistId, userId);
     await this._usersService.verifyUserIdExist(userId);
     const collab_id = await this._service.addCollaborator(playlistId, userId);
@@ -26,6 +28,21 @@ class CollaborationsHandler {
         },
       })
       .code(201);
+  }
+
+  async deleteCollaboratorHandler(request, h) {
+    this._validator.validatePostCollaborationPayload(request.payload);
+    const { id: credentialId } = request.auth.credentials;
+    const { playlistId, userId } = request.payload;
+
+    await this._playlistsService.verifyPlaylistOwner(playlistId, credentialId);
+    console.log('ok');
+    await this._service.deleteCollaborator(playlistId, userId);
+
+    return h.response({
+      status: 'success',
+      message: 'Collaboration successfully deleted',
+    });
   }
 }
 
