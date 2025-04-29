@@ -1,15 +1,20 @@
 const autoBind = require('auto-bind');
 
 class SongsHandler {
-  constructor(service, validator) {
+  constructor(service, validator, playlistsService) {
     this._service = service;
     this._validator = validator;
+    this._playlistsService = playlistsService;
     autoBind(this);
   }
 
   async postSongHandler(request, h) {
     this._validator.validateSongsPayload(request.payload);
 
+    // const { playlistId } = request.payload;
+    // const { id: credentialId } = request.auth.credentials;
+
+    // await this._playlistsService.verifyPlaylistAccess(playlistId, credentialId);
     const { title, year, genre, performer, duration, albumId } =
       request.payload;
     const songId = await this._service.addSong({

@@ -5,8 +5,9 @@ const NotFoundError = require('../../exceptions/NotFoundError');
 const AuthorizationError = require('../../exceptions/AuthorizationError');
 
 class PlaylistsService {
-  constructor() {
+  constructor(collaborationsService) {
     this._pool = new Pool();
+    this._collaborationsService = collaborationsService;
   }
 
   async verifyPlaylistNameExist(name) {
@@ -41,13 +42,21 @@ class PlaylistsService {
   }
 
   async getPlaylistById(owner) {
-    const query = {
-      text: `SELECT playlists.id, playlists.name, users.username FROM playlists LEFT JOIN users ON playlists.owner = users.id WHERE playlists.owner = $1`,
-      values: [owner],
-    };
-    const result = await this._pool.query(query);
+    console.log('ok');
+    try {
+      const query = {
+        text: `SELECT playlists.id, playlists.name, users.username FROM playlists
+        LEFT JOIN users ON users.id = playlists.owner
+        LEFT JOIN collaborations ON collaborations.playlist_id = playlists.id 
+        WHERE playlists.owner = $1 OR collaborations.user_id = $1`,
+        values: [owner],
+      };
+      const result = await this._pool.query(query);
 
-    return result.rows;
+      return result.rows;
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async deletePlaylistById(id) {
@@ -96,10 +105,10 @@ class PlaylistsService {
     }
   }
 
-  async verifyPlaylistOwner(id, owner) {
+  async verifyPlaylistOwner(playlistId, owner) {
     const query = {
       text: 'SELECT * FROM playlists WHERE id = $1',
-      values: [id],
+      values: [playlistId],
     };
     const result = await this._pool.query(query);
 
@@ -166,6 +175,24 @@ class PlaylistsService {
     const result = await this._pool.query(query);
     if (result.rowCount === 0) {
       throw new NotFoundError('song failed to delete, id not found');
+    }
+  }
+
+  async verifyPlaylistAccess(playlistId, userId) {
+    try {
+      await this.verifyPlaylistOwner(playlistId, userId);
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        throw error;
+      }
+      try {
+        await this._collaborationsService.verifyCollaborator(
+          playlistId,
+          userId,
+        );
+      } catch (error) {
+        throw error;
+      }
     }
   }
 }

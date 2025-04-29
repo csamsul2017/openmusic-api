@@ -63,6 +63,18 @@ class UsersService {
     }
     return result.rows[0].id;
   }
+
+  async verifyUserIdExist(userId) {
+    const query = {
+      text: 'SELECT id FROM users WHERE id = $1',
+      values: [userId],
+    };
+    const result = await this._pool.query(query);
+
+    if (!result.rowCount) {
+      throw new InvariantError('Users not found');
+    }
+  }
 }
 
 module.exports = UsersService;
