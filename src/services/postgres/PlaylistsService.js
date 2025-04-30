@@ -42,7 +42,6 @@ class PlaylistsService {
   }
 
   async getPlaylistById(owner) {
-    console.log('ok');
     try {
       const query = {
         text: `SELECT playlists.id, playlists.name, users.username FROM playlists
@@ -111,8 +110,6 @@ class PlaylistsService {
       values: [playlistId],
     };
     const result = await this._pool.query(query);
-    console.log(playlistId, owner);
-    console.log(result);
 
     if (!result.rows.length) {
       throw new NotFoundError('Playlist not found');
@@ -195,6 +192,26 @@ class PlaylistsService {
       } catch (error) {
         throw error;
       }
+    }
+  }
+
+  async addPlaylistActivities(
+    playlist_id,
+    credentialId,
+    songId,
+    action = 'add',
+  ) {
+    try {
+      const id = `activities-${nanoid(16)}`;
+      const time = new Date().toISOString();
+      const query = {
+        text: 'INSERT INTO playlist_song_activities (id, playlist_id, username, title, action, time) VALUES($1, $2, (SELECT username FROM users WHERE id = $3), (SELECT title FROM songs WHERE id = $4), $5, $6)',
+        values: [id, playlist_id, credentialId, songId, action, time],
+      };
+
+      await this._pool.query(query);
+    } catch (error) {
+      console.log(error);
     }
   }
 }

@@ -27,7 +27,6 @@ class PlaylistsHandler {
 
   async getPlaylistsHandler(request, h) {
     const { id: credentialId } = request.auth.credentials;
-    console.log('OK');
     const playlists = await this._service.getPlaylistById(credentialId);
 
     return h.response({
@@ -60,6 +59,7 @@ class PlaylistsHandler {
     await this._service.verifySongExist(songId);
     await this._service.checkSongInPlaylist(playlistId, songId);
     await this._service.addSongToPlaylist(playlistId, songId);
+    await this._service.addPlaylistActivities(playlistId, credentialId, songId);
 
     return h
       .response({
