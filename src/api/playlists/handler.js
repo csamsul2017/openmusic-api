@@ -59,7 +59,12 @@ class PlaylistsHandler {
     await this._service.verifySongExist(songId);
     await this._service.checkSongInPlaylist(playlistId, songId);
     await this._service.addSongToPlaylist(playlistId, songId);
-    await this._service.addPlaylistActivities(playlistId, credentialId, songId);
+    await this._service.addPlaylistActivities(
+      playlistId,
+      credentialId,
+      songId,
+      'add',
+    );
 
     return h
       .response({
@@ -101,12 +106,35 @@ class PlaylistsHandler {
 
     await this._service.verifyPlaylistAccess(playlistId, credentialId);
     await this._service.verifySongExist(songId);
+    await this._service.addPlaylistActivities(
+      playlistId,
+      credentialId,
+      songId,
+      'delete',
+    );
     await this._service.deleteSongFromPlaylist(songId);
 
     return h.response({
       status: 'success',
       message: 'song successfully deleted',
     });
+  }
+
+  async getPlaylistActivitiesHandler(request, h) {
+    const { id: playlistId } = request.params;
+    const { id: credentialId } = request.auth.credentials;
+    await this._service.verifyPlaylistAccess(playlistId, credentialId);
+    const result = await this._service.getActivities(playlistId);
+
+    return h
+      .response({
+        status: 'success',
+        data: {
+          playlistId: playlistId,
+          activities: result,
+        },
+      })
+      .code(200);
   }
 }
 

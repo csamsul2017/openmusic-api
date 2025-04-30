@@ -195,12 +195,7 @@ class PlaylistsService {
     }
   }
 
-  async addPlaylistActivities(
-    playlist_id,
-    credentialId,
-    songId,
-    action = 'add',
-  ) {
+  async addPlaylistActivities(playlist_id, credentialId, songId, action) {
     try {
       const id = `activities-${nanoid(16)}`;
       const time = new Date().toISOString();
@@ -213,6 +208,20 @@ class PlaylistsService {
     } catch (error) {
       console.log(error);
     }
+  }
+
+  async getActivities(playlistId) {
+    const query = {
+      text: 'SELECT username, title, action, time FROM playlist_song_activities WHERE playlist_id = $1',
+      values: [playlistId],
+    };
+    const result = await this._pool.query(query);
+
+    if (!result.rowCount) {
+      throw new InvariantError('Playlist activities not found');
+    }
+
+    return result.rows;
   }
 }
 
