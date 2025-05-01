@@ -31,11 +31,13 @@ const routes = (handler) => [
     method: 'PUT',
     path: '/albums/{id}',
     handler: handler.putAlbumByIdHandler,
+    options: { auth: 'openmusicapp_jwt' },
   },
   {
     method: 'DELETE',
     path: '/albums/{id}',
     handler: handler.deleteAlbumByIdHandler,
+    options: { auth: 'openmusicapp_jwt' },
   },
   {
     method: 'GET',

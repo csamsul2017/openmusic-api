@@ -11,7 +11,7 @@ class AlbumLikesHandler {
     const { id: albumId } = request.params;
     const { id: userId } = request.auth.credentials;
 
-    await this._albumsService.verifyAlbumExist(albumId);
+    await this._albumsService.verifyAlbumExists(albumId);
 
     const isLiked = await this._service.verifyAlbumLikesExist(userId, albumId);
 
@@ -31,7 +31,7 @@ class AlbumLikesHandler {
     const { id: albumId } = request.params;
     const { id: userId } = request.auth.credentials;
 
-    await this._albumsService.verifyAlbumExist(albumId);
+    await this._albumsService.verifyAlbumExists(albumId);
     await this._service.deleteAlbumLikes(userId, albumId);
 
     return h

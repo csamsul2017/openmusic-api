@@ -3,6 +3,7 @@ const { nanoid } = require('nanoid');
 const fs = require('fs');
 const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
+const AuthorizationError = require('../../exceptions/AuthorizationError');
 
 class AlbumsService {
   constructor(folder) {
@@ -14,14 +15,14 @@ class AlbumsService {
     }
   }
 
-  async verifyAlbumExist(albumId) {
+  async verifyAlbumExists(albumId) {
     const query = {
       text: 'SELECT id FROM albums WHERE id = $1',
       values: [albumId],
     };
     const result = await this._pool.query(query);
 
-    if (result.rowCount === 0) {
+    if (!result.rowCount) {
       throw new NotFoundError('Album not found');
     }
   }
@@ -67,26 +68,27 @@ class AlbumsService {
     };
   }
 
-  async editAlbumById({ id, name, year }) {
+  async editAlbumById({ albumId, name, year }) {
     const query = {
       text: 'UPDATE albums SET name = $1, year = $2 WHERE id = $3 RETURNING id',
-      values: [name, year, id],
+      values: [name, year, albumId],
     };
+    console.log(name, year, albumId);
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) {
+    if (!result.rowCount) {
       throw new NotFoundError('album failed to edit, id not found');
     }
   }
 
-  async deleteAlbumById(id) {
+  async deleteAlbumById(albumId) {
     const query = {
       text: 'DELETE FROM albums WHERE id = $1 RETURNING id',
-      values: [id],
+      values: [albumId],
     };
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) {
+    if (!result.rowCount) {
       throw new NotFoundError('album failed to delete, id not found');
     }
   }
@@ -112,6 +114,21 @@ class AlbumsService {
 
     if (!result.rows.length) {
       throw new NotFoundError('Failed to update cover, album not found');
+    }
+  }
+
+  async verifyAlbumAccess(albumId, credentialId) {
+    const query = {
+      text: 'SELECT id FROM albums WHERE id = $1 and user_id = $2',
+      values: [albumId, credentialId],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rowCount) {
+      throw new InvariantError(
+        'You do not have permission to access this album',
+      );
     }
   }
 }

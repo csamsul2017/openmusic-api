@@ -30,8 +30,12 @@ class AlbumsHandler {
   }
 
   async getAlbumByIdHandler(request, h) {
-    const { id } = request.params;
-    const album = await this._service.getAlbumById(id);
+    const { id: albumId } = request.params;
+    const { id: credentialId } = request.auth.credentials;
+
+    await this._service.verifyAlbumExists(albumId);
+    await this._service.verifyAlbumAccess(albumId, credentialId);
+    const album = await this._service.getAlbumById(albumId);
 
     return h
       .response({
@@ -45,12 +49,15 @@ class AlbumsHandler {
 
   async putAlbumByIdHandler(request, h) {
     this._validator.validateAlbumsPayload(request.payload);
-
-    const { id } = request.params;
+    const { id: credentialId } = request.auth.credentials;
+    const { id: albumId } = request.params;
     const { year, name } = request.payload;
 
-    await this._service.editAlbumById({ id, year, name });
+    await this._service.verifyAlbumExists(albumId);
+    await this._service.verifyAlbumAccess(albumId, credentialId);
 
+    await this._service.editAlbumById({ albumId, year, name });
+    console.log('ok');
     return h
       .response({
         status: 'success',
@@ -60,9 +67,10 @@ class AlbumsHandler {
   }
 
   async deleteAlbumByIdHandler(request, h) {
-    const { id } = request.params;
+    const { id: albumId } = request.params;
 
-    await this._service.deleteAlbumById(id);
+    await this._service.verifyAlbumExists(albumId);
+    await this._service.deleteAlbumById(albumId);
 
     return h
       .response({
