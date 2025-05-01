@@ -26,16 +26,16 @@ class AlbumsService {
     }
   }
 
-  async addAlbum({ name, year, coverUrl }) {
+  async addAlbum({ name, year, coverUrl, credentialId }) {
     const id = `album-${nanoid(16)}`;
     const query = {
-      text: 'INSERT INTO albums VALUES($1, $2, $3, $4) RETURNING ID',
-      values: [id, name, year, coverUrl],
+      text: 'INSERT INTO albums VALUES($1, $2, $3, $4, $5) RETURNING ID',
+      values: [id, name, year, coverUrl, credentialId],
     };
     const result = await this._pool.query(query);
 
-    if (!result.rows[0].id) {
-      throw new InvariantError('song failed to add');
+    if (!result.rowCount) {
+      throw new InvariantError('failed to create album');
     }
 
     return result.rows[0].id;
