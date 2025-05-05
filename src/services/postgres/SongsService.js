@@ -15,11 +15,12 @@ class SongsService {
     performer,
     duration = null,
     albumId = null,
+    user_id,
   }) {
     const id = `song-${nanoid(16)}`;
     const query = {
-      text: 'INSERT INTO songs VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING ID',
-      values: [id, title, year, genre, performer, duration, albumId],
+      text: 'INSERT INTO songs VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING ID',
+      values: [id, title, year, genre, performer, duration, albumId, user_id],
     };
     const result = await this._pool.query(query);
 
@@ -29,21 +30,27 @@ class SongsService {
     return result.rows[0].id;
   }
 
-  async getSongs({ title, performer } = {}) {
-    let query = 'SELECT id, title, performer FROM songs WHERE 1=1';
-    const values = [];
+  async getSongs(credentialId) {
+    // let query = 'SELECT id, title, performer FROM songs WHERE 1=1';
+    // const values = [];
+    // if (title) {
+    //   query += ` AND title ILIKE $${values.length + 1}`;
+    //   values.push(`%${title}%`);
+    // }
+    // if (performer) {
+    //   query += ` AND performer ILIKE $${values.length + 1}`;
+    //   values.push(`%${performer}%`);
+    // }
+    // const result = await this._pool.query({ text: query, values });
+    // return result.rows;
 
-    if (title) {
-      query += ` AND title ILIKE $${values.length + 1}`;
-      values.push(`%${title}%`);
-    }
+    const query = {
+      text: 'SELECT id, title, performer FROM songs WHERE user_id = $1',
+      values: [credentialId],
+    };
 
-    if (performer) {
-      query += ` AND performer ILIKE $${values.length + 1}`;
-      values.push(`%${performer}%`);
-    }
+    const result = await this._pool.query(query);
 
-    const result = await this._pool.query({ text: query, values });
     return result.rows;
   }
 
