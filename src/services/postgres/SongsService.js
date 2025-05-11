@@ -2,6 +2,7 @@ const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
+const AuthorizationError = require('../../exceptions/AuthorizationError');
 
 class SongsService {
   constructor() {
@@ -31,33 +32,19 @@ class SongsService {
   }
 
   async getSongs(credentialId) {
-    // let query = 'SELECT id, title, performer FROM songs WHERE 1=1';
-    // const values = [];
-    // if (title) {
-    //   query += ` AND title ILIKE $${values.length + 1}`;
-    //   values.push(`%${title}%`);
-    // }
-    // if (performer) {
-    //   query += ` AND performer ILIKE $${values.length + 1}`;
-    //   values.push(`%${performer}%`);
-    // }
-    // const result = await this._pool.query({ text: query, values });
-    // return result.rows;
-
     const query = {
       text: 'SELECT id, title, performer FROM songs WHERE user_id = $1',
       values: [credentialId],
     };
-
     const result = await this._pool.query(query);
 
     return result.rows;
   }
 
-  async getSongById(id) {
+  async getSongById(songId) {
     const query = {
       text: 'SELECT * FROM songs WHERE id = $1',
-      values: [id],
+      values: [songId],
     };
     const result = await this._pool.query(query);
 
@@ -96,6 +83,32 @@ class SongsService {
 
     if (!result.rows.length) {
       throw new NotFoundError('song failed to delete, id not found');
+    }
+  }
+
+  async verifySongExists(songId) {
+    const query = {
+      text: 'SELECT id FROM songs where id = $1',
+      values: [songId],
+    };
+    const result = await this._pool.query(query);
+
+    if (!result.rowCount) {
+      throw new InvariantError('Song id not exists');
+    }
+  }
+
+  async verifySongAccess(songId, credentialId) {
+    const query = {
+      text: 'SELECT id FROM songs WHERE id = $1 and user_id = $2',
+      values: [songId, credentialId],
+    };
+    const result = await this._pool.query(query);
+
+    if (!result.rowCount) {
+      throw new AuthorizationError(
+        'You do not have permission to access this song',
+      );
     }
   }
 }

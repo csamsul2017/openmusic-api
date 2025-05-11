@@ -33,7 +33,6 @@ class SongsHandler {
   }
 
   async getSongsHandler(request, h) {
-    // const { title, performer } = request.query;
     const { id: credentialId } = request.auth.credentials;
     const result = await this._service.getSongs(credentialId);
 
@@ -46,8 +45,11 @@ class SongsHandler {
   }
 
   async getSongByIdHandler(request, h) {
-    const { id } = request.params;
-    const song = await this._service.getSongById(id);
+    const { id: credentialId } = request.auth.credentials;
+    const { id: songId } = request.params;
+    await this._service.verifySongExists(songId);
+    await this._service.verifySongAccess(songId, credentialId);
+    const song = await this._service.getSongById(songId);
 
     return h
       .response({
