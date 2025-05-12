@@ -63,13 +63,15 @@ class SongsHandler {
 
   async putSongByIdHandler(request, h) {
     this._validator.validateSongsPayload(request.payload);
-
-    const { id } = request.params;
+    const { id: credentialId } = request.auth.credentials;
+    const { id: songId } = request.params;
+    await this._service.verifySongExists(songId);
+    await this._service.verifySongAccess(songId, credentialId);
     const { title, year, genre, performer, duration, albumId } =
       request.payload;
 
     await this._service.editSongById({
-      id,
+      songId,
       title,
       year,
       genre,
@@ -87,8 +89,11 @@ class SongsHandler {
   }
 
   async deleteSongByIdHandler(request, h) {
-    const { id } = request.params;
-    await this._service.deleteSongById(id);
+    const { id: credentialId } = request.auth.credentials;
+    const { id: songId } = request.params;
+    await this._service.verifySongExists(songId);
+    await this._service.verifySongAccess(songId, credentialId);
+    await this._service.deleteSongById(songId);
 
     return h
       .response({

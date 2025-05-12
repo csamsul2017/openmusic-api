@@ -55,7 +55,7 @@ class SongsService {
   }
 
   async editSongById({
-    id,
+    songId,
     title,
     year,
     genre,
@@ -65,7 +65,7 @@ class SongsService {
   }) {
     const query = {
       text: 'UPDATE songs SET title = $1, year = $2, genre = $3, performer = $4, duration = $5, "albumId" = $6 WHERE id = $7 RETURNING id',
-      values: [title, year, genre, performer, duration, albumId, id],
+      values: [title, year, genre, performer, duration, albumId, songId],
     };
     const result = await this._pool.query(query);
 
@@ -74,10 +74,10 @@ class SongsService {
     }
   }
 
-  async deleteSongById(id) {
+  async deleteSongById(dongId) {
     const query = {
       text: 'DELETE FROM songs WHERE id = $1 RETURNING id',
-      values: [id],
+      values: [songId],
     };
     const result = await this._pool.query(query);
 
@@ -94,7 +94,7 @@ class SongsService {
     const result = await this._pool.query(query);
 
     if (!result.rowCount) {
-      throw new InvariantError('Song id not exists');
+      throw new NotFoundError('Song id not exists');
     }
   }
 
