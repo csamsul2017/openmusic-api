@@ -8,20 +8,16 @@ class SongsHandler {
     autoBind(this);
   }
 
+  async _authorizeSong(songId, credentialId) {
+    await this._service.verifySongExists(songId);
+    await this._service.verifySongAccess(songId, credentialId);
+  }
+
   async postSongHandler(request, h) {
+    const { payload, auth } = request;
+    const { id: user_id } = auth.credentials;
     this._validator.validateSongsPayload(request.payload);
-    const { id: user_id } = request.auth.credentials;
-    const { title, year, genre, performer, duration, albumId } =
-      request.payload;
-    const songId = await this._service.addSong({
-      title,
-      year,
-      genre,
-      performer,
-      duration,
-      albumId,
-      user_id,
-    });
+    const songId = await this._service.addSong({ ...payload, user_id });
 
     return h
       .response({
@@ -47,8 +43,7 @@ class SongsHandler {
   async getSongByIdHandler(request, h) {
     const { id: credentialId } = request.auth.credentials;
     const { id: songId } = request.params;
-    await this._service.verifySongExists(songId);
-    await this._service.verifySongAccess(songId, credentialId);
+    await this._authorizeSong(songId, credentialId);
     const song = await this._service.getSongById(songId);
 
     return h
@@ -65,8 +60,7 @@ class SongsHandler {
     this._validator.validateSongsPayload(request.payload);
     const { id: credentialId } = request.auth.credentials;
     const { id: songId } = request.params;
-    await this._service.verifySongExists(songId);
-    await this._service.verifySongAccess(songId, credentialId);
+    await this._authorizeSong(songId, credentialId);
     const { title, year, genre, performer, duration, albumId } =
       request.payload;
 
@@ -91,8 +85,7 @@ class SongsHandler {
   async deleteSongByIdHandler(request, h) {
     const { id: credentialId } = request.auth.credentials;
     const { id: songId } = request.params;
-    await this._service.verifySongExists(songId);
-    await this._service.verifySongAccess(songId, credentialId);
+    await this._authorizeSong(songId, credentialId);
     await this._service.deleteSongById(songId);
 
     return h
