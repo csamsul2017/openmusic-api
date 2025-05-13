@@ -16,7 +16,7 @@ class SongsHandler {
   async postSongHandler(request, h) {
     const { payload, auth } = request;
     const { id: user_id } = auth.credentials;
-    this._validator.validateSongsPayload(request.payload);
+    this._validator.validateSongsPayload(payload);
     const songId = await this._service.addSong({ ...payload, user_id });
 
     return h
@@ -57,22 +57,12 @@ class SongsHandler {
   }
 
   async putSongByIdHandler(request, h) {
-    this._validator.validateSongsPayload(request.payload);
-    const { id: credentialId } = request.auth.credentials;
-    const { id: songId } = request.params;
+    const { payload, auth, params } = request;
+    const { id: credentialId } = auth.credentials;
+    const { id: songId } = params;
+    this._validator.validateSongsPayload(payload);
     await this._authorizeSong(songId, credentialId);
-    const { title, year, genre, performer, duration, albumId } =
-      request.payload;
-
-    await this._service.editSongById({
-      songId,
-      title,
-      year,
-      genre,
-      performer,
-      duration,
-      albumId,
-    });
+    await this._service.editSongById({ songId, ...payload });
 
     return h
       .response({

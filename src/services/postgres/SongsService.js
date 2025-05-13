@@ -59,15 +59,36 @@ class SongsService {
     return result.rows[0];
   }
 
-  async editSongById({
-    songId,
-    title,
-    year,
-    genre,
-    performer,
-    duration = null,
-    albumId = null,
-  }) {
+  // async editSongById({
+  //   songId,
+  //   title,
+  //   year,
+  //   genre,
+  //   performer,
+  //   duration = null,
+  //   albumId = null,
+  // }) {
+  //   const query = {
+  //     text: 'UPDATE songs SET title = $1, year = $2, genre = $3, performer = $4, duration = $5, "albumId" = $6 WHERE id = $7 RETURNING id',
+  //     values: [title, year, genre, performer, duration, albumId, songId],
+  //   };
+  //   const result = await this._pool.query(query);
+
+  //   if (!result.rows.length) {
+  //     throw new NotFoundError('song failed to edit, id not found');
+  //   }
+  // }
+
+  async editSongById(payload) {
+    const {
+      songId,
+      title,
+      year,
+      genre,
+      performer,
+      duration = null,
+      albumId = null,
+    } = payload;
     const query = {
       text: 'UPDATE songs SET title = $1, year = $2, genre = $3, performer = $4, duration = $5, "albumId" = $6 WHERE id = $7 RETURNING id',
       values: [title, year, genre, performer, duration, albumId, songId],
@@ -79,7 +100,7 @@ class SongsService {
     }
   }
 
-  async deleteSongById(dongId) {
+  async deleteSongById(songId) {
     const query = {
       text: 'DELETE FROM songs WHERE id = $1 RETURNING id',
       values: [songId],
