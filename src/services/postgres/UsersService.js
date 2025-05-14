@@ -48,9 +48,9 @@ class UsersService {
     return id;
   }
 
-  async addUser({ username, password, fullname }) {
+  async addUser(payload) {
+    const { username, password, fullname } = payload;
     await this.verifyNewUsername(username);
-
     const id = `user-${nanoid(16)}`;
     const hashedPassword = await bcrypt.hash(password, 10);
     const query = {
@@ -63,6 +63,27 @@ class UsersService {
       throw new InvariantError('User failed to add');
     }
     return result.rows[0].id;
+  }
+
+  async editUser(payload) {
+    const { credentialId, username, password, fullname } = payload;
+    let hashedPassword = null;
+    if (password) {
+      hashedPassword = await bcrypt.hash(password, 10);
+    }
+    const fields = { username, password: hashedPassword, fullname };
+    const keys = Object.keys(fields);
+
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      const value = fields[key];
+      if (value) {
+        await this._pool.query(`UPDATE users SET ${key} = $1 WHERE id = $2`, [
+          value,
+          credentialId,
+        ]);
+      }
+    }
   }
 
   async verifyUserIdExist(userId) {
