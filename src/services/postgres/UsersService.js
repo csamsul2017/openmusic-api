@@ -65,7 +65,16 @@ class UsersService {
     return result.rows[0].id;
   }
 
-  async editUser(payload) {
+  async getMyProfile(userId) {
+    const query = {
+      text: 'SELECT users.username, users.fullname FROM users WHERE id = $1',
+      values: [userId],
+    };
+    const result = await this._pool.query(query);
+    return result.rows[0];
+  }
+
+  async editMyProfile(payload) {
     const { credentialId, username, password, fullname } = payload;
     let hashedPassword = null;
     if (password) {

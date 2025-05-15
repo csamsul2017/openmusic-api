@@ -7,9 +7,15 @@ const routes = (handler) => [
     handler: handler.postUserHandler,
   },
   {
+    method: 'GET',
+    path: '/users/me',
+    handler: handler.getMyProfileHandler,
+    options: { auth: 'openmusicapp_jwt' },
+  },
+  {
     method: 'PUT',
-    path: '/users',
-    handler: handler.putUserHandler,
+    path: '/users/me',
+    handler: handler.putMyProfileHandler,
     options: { auth: 'openmusicapp_jwt' },
   },
 ];
