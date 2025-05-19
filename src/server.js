@@ -54,8 +54,8 @@ const init = async () => {
   const albumLikesService = new AlbumLikesService(cacheService);
 
   const server = Hapi.server({
-    port: config.app.host,
-    host: config.app.port,
+    port: config.app.port,
+    host: config.app.host,
   });
 
   await server.register([
