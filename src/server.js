@@ -4,6 +4,7 @@ const Jwt = require('@hapi/jwt');
 const Inert = require('@hapi/inert');
 const path = require('path');
 
+const config = require('./utils/config');
 // Exceptions
 const ClientError = require('./exceptions/ClientError');
 // Users
@@ -54,8 +55,8 @@ const init = async () => {
   const albumLikesService = new AlbumLikesService(cacheService);
 
   const server = Hapi.server({
-    port: process.env.PORT || 5000,
-    host: process.env.HOST || 'localhost',
+    port: config.app.host,
+    host: config.app.port,
   });
 
   await server.register([
