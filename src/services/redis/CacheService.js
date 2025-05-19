@@ -4,10 +4,7 @@ const config = require('../../utils/config');
 class CacheService {
   constructor() {
     this._client = redis.createClient({
-      socket: {
-        host: config.redis.host,
-        port: config.redis.port,
-      },
+      url: config.redis.url,
     });
     this._client.on('error', (error) => {
       console.log(error);

@@ -9,8 +9,7 @@ const config = {
     server: process.env.RABBITMQ_SERVER,
   },
   redis: {
-    host: process.env.REDIS_SERVER,
-    port: process.env.REDIS_PORT,
+    url: process.env.REDIS_SERVER,
   },
 };
 
