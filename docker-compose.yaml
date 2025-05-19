@@ -40,6 +40,7 @@ services:
       - postgres
       - redis
       - rabbitmq
+    command: sh -c "npm run migrate up && npm start"
 
 volumes:
   pgdata:
