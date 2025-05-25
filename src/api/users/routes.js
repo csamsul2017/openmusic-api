@@ -18,6 +18,12 @@ const routes = (handler) => [
     handler: handler.putMyProfileHandler,
     options: { auth: 'openmusicapp_jwt' },
   },
+  {
+    method: 'DELETE',
+    path: '/users/me',
+    handler: handler.deleteMyProfileHandler,
+    options: { auth: 'openmusicapp_jwt' },
+  },
 ];
 
 module.exports = routes;

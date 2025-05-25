@@ -44,6 +44,18 @@ class UsersHandler {
       })
       .code(200);
   }
+
+  async deleteMyProfileHandler(request, h) {
+    const { id: credentialId } = request.auth.credentials;
+    await this._service.deleteMyProfile(credentialId);
+
+    return h
+      .response({
+        status: 'success',
+        message: 'User deleted',
+      })
+      .code(200);
+  }
 }
 
 module.exports = UsersHandler;

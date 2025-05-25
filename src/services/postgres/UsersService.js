@@ -106,6 +106,17 @@ class UsersService {
       throw new NotFoundError('Users not found');
     }
   }
+
+  async deleteMyProfile(userId) {
+    const query = {
+      text: 'DELETE FROM users WHERE id = $1 RETURNING id',
+      values: [userId],
+    };
+    const result = await this._pool.query(query);
+    if (!result.rowCount) {
+      throw new NotFoundError('user failed to delete, id not found');
+    }
+  }
 }
 
 module.exports = UsersService;

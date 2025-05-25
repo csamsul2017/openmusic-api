@@ -7,7 +7,7 @@ const config = {
     server: process.env.RABBITMQ_SERVER,
   },
   redis: {
-    host: process.env.REDIS_SERVER,
+    url: process.env.REDIS_SERVER,
   },
 };
 
