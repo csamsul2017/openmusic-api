@@ -8,14 +8,9 @@ class UsersHandler {
   }
 
   async postUserHandler(request, h) {
-    this._validator.validateUserPayload(request.payload);
-
-    const { username, password, fullname } = request.payload;
-    const userId = await this._service.addUser({
-      username,
-      password,
-      fullname,
-    });
+    const { payload } = request;
+    this._validator.validatePostUserPayload(payload);
+    const userId = await this._service.addUser({ ...payload });
 
     return h
       .response({
@@ -24,6 +19,42 @@ class UsersHandler {
         data: { userId },
       })
       .code(201);
+  }
+
+  async getMyProfileHandler(request, h) {
+    const { id: credentialId } = request.auth.credentials;
+    const result = await this._service.getMyProfile(credentialId);
+
+    return h.response({
+      status: 'success',
+      data: { user: result },
+    });
+  }
+
+  async putMyProfileHandler(request, h) {
+    const { payload, auth } = request;
+    const { id: credentialId } = auth.credentials;
+    await this._validator.validatePutUserPayload(payload);
+    await this._service.editMyProfile({ credentialId, ...payload });
+
+    return h
+      .response({
+        status: 'success',
+        message: 'User updated',
+      })
+      .code(200);
+  }
+
+  async deleteMyProfileHandler(request, h) {
+    const { id: credentialId } = request.auth.credentials;
+    await this._service.deleteMyProfile(credentialId);
+
+    return h
+      .response({
+        status: 'success',
+        message: 'User deleted',
+      })
+      .code(200);
   }
 }
 

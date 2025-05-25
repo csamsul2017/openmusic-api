@@ -48,9 +48,9 @@ class UsersService {
     return id;
   }
 
-  async addUser({ username, password, fullname }) {
+  async addUser(payload) {
+    const { username, password, fullname } = payload;
     await this.verifyNewUsername(username);
-
     const id = `user-${nanoid(16)}`;
     const hashedPassword = await bcrypt.hash(password, 10);
     const query = {
@@ -65,6 +65,36 @@ class UsersService {
     return result.rows[0].id;
   }
 
+  async getMyProfile(userId) {
+    const query = {
+      text: 'SELECT users.username, users.fullname FROM users WHERE id = $1',
+      values: [userId],
+    };
+    const result = await this._pool.query(query);
+    return result.rows[0];
+  }
+
+  async editMyProfile(payload) {
+    const { credentialId, username, password, fullname } = payload;
+    let hashedPassword = null;
+    if (password) {
+      hashedPassword = await bcrypt.hash(password, 10);
+    }
+    const fields = { username, password: hashedPassword, fullname };
+    const keys = Object.keys(fields);
+
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      const value = fields[key];
+      if (value) {
+        await this._pool.query(`UPDATE users SET ${key} = $1 WHERE id = $2`, [
+          value,
+          credentialId,
+        ]);
+      }
+    }
+  }
+
   async verifyUserIdExist(userId) {
     const query = {
       text: 'SELECT id FROM users WHERE id = $1',
@@ -74,6 +104,17 @@ class UsersService {
 
     if (!result.rowCount) {
       throw new NotFoundError('Users not found');
+    }
+  }
+
+  async deleteMyProfile(userId) {
+    const query = {
+      text: 'DELETE FROM users WHERE id = $1 RETURNING id',
+      values: [userId],
+    };
+    const result = await this._pool.query(query);
+    if (!result.rowCount) {
+      throw new NotFoundError('user failed to delete, id not found');
     }
   }
 }
