@@ -32,9 +32,7 @@ class UsersService {
     const result = await this._pool.query(query);
 
     if (!result.rows.length) {
-      throw new AuthenticationError(
-        'The credentials you provided are incorrect',
-      );
+      throw new AuthenticationError('Id not found');
     }
 
     const { id, password: hashedPassword } = result.rows[0];
