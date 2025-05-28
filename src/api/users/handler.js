@@ -23,6 +23,7 @@ class UsersHandler {
 
   async getMyProfileHandler(request, h) {
     const { id: credentialId } = request.auth.credentials;
+    await this._service.verifyUserIdExist(credentialId);
     const result = await this._service.getMyProfile(credentialId);
 
     return h.response({
@@ -34,6 +35,7 @@ class UsersHandler {
   async putMyProfileHandler(request, h) {
     const { payload, auth } = request;
     const { id: credentialId } = auth.credentials;
+    await this._service.verifyUserIdExist(credentialId);
     await this._validator.validatePutUserPayload(payload);
     await this._service.editMyProfile({ credentialId, ...payload });
 

@@ -11,17 +11,11 @@ class AuthenticationsHandler {
 
   async postAuthenticationHandler(request, h) {
     this._validator.validatePostAuthenticationPayload(request.payload);
-
     const { username, password } = request.payload;
     const id = await this._usersService.verifyUserCred(username, password);
-    const accessToken = this._tokenManager.generateAccessToken({
-      id,
-    });
-    const refreshToken = this._tokenManager.generateRefreshToken({
-      id,
-    });
-
-    await this._authenticationsService.addRefreshToken(refreshToken);
+    const accessToken = this._tokenManager.generateAccessToken({ id });
+    const refreshToken = this._tokenManager.generateRefreshToken({ id });
+    await this._authenticationsService.addRefreshToken(refreshToken, username);
 
     return h
       .response({
