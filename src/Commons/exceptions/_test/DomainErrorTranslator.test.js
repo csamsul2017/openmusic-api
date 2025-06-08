@@ -9,7 +9,7 @@ describe('DomainErrorTranslator', () => {
       ),
     ).toStrictEqual(
       new InvariantError(
-        'tidak dapat membuat user baru karena properti yang dibutuhkan tidak ada',
+        'Cannot create new user because required property is missing',
       ),
     );
     expect(
@@ -17,9 +17,7 @@ describe('DomainErrorTranslator', () => {
         new Error('REGISTER_USER.NOT_MEET_DATA_TYPE_SPECIFICATION'),
       ),
     ).toStrictEqual(
-      new InvariantError(
-        'tidak dapat membuat user baru karena tipe data tidak sesuai',
-      ),
+      new InvariantError('Do not create new user because data type not match'),
     );
     expect(
       DomainErrorTranslator.translate(
@@ -27,7 +25,7 @@ describe('DomainErrorTranslator', () => {
       ),
     ).toStrictEqual(
       new InvariantError(
-        'tidak dapat membuat user baru karena karakter username melebihi batas limit',
+        'Cannot create new user because username characters exceed limit',
       ),
     );
     expect(
@@ -36,7 +34,7 @@ describe('DomainErrorTranslator', () => {
       ),
     ).toStrictEqual(
       new InvariantError(
-        'tidak dapat membuat user baru karena username mengandung karakter terlarang',
+        'Cannot create new user because username contains prohibited characters',
       ),
     );
   });

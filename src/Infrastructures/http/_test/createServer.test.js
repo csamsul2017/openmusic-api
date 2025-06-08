@@ -55,7 +55,7 @@ describe('HTTP server', () => {
       expect(response.statusCode).toEqual(400);
       expect(responseJson.status).toEqual('fail');
       expect(responseJson.message).toEqual(
-        'cannot create new user because required property is missing',
+        'Cannot create new user because required property is missing',
       );
     });
 
@@ -75,7 +75,7 @@ describe('HTTP server', () => {
       expect(response.statusCode).toEqual(400);
       expect(responseJson.status).toEqual('fail');
       expect(responseJson.message).toEqual(
-        'do not create new user because data type not match',
+        'Do not create new user because data type not match',
       );
     });
 
@@ -127,7 +127,7 @@ describe('HTTP server', () => {
         password: 'joko123',
         fullname: 'Joko',
       };
-      const server = await server.inject(container);
+      const server = await createServer(container);
       const response = await server.inject({
         method: 'POST',
         url: '/users',
@@ -136,7 +136,7 @@ describe('HTTP server', () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(400);
       expect(responseJson.status).toEqual('fail');
-      ecpect(responseJson.message).toEqual('Username not available');
+      expect(responseJson.message).toEqual('Username not available');
     });
 
     it('Should handle server error correctly', async () => {

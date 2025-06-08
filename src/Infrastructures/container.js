@@ -17,7 +17,7 @@ const container = createContainer();
 container.register([
   {
     key: UserRepository.name,
-    class: UserRepositoryPostgres,
+    Class: UserRepositoryPostgres,
     parameter: {
       dependencies: [{ concrete: pool }, { concrete: nanoid }],
     },
