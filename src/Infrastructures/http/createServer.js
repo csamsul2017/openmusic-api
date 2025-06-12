@@ -41,6 +41,15 @@ const createServer = async (container) => {
       newResponse.code(500);
       return newResponse;
     }
+
+    // if (response instanceof ClientError) {
+    //   const newResponse = h.response({
+    //     status: 'fail',
+    //     message: response.message,
+    //   });
+    //   newResponse.code(response.statusCode);
+    //   return newResponse;
+    // }
     // jika bukan error, lanjutkan dengan response sebelumnya (tanpa terintervensi)
     return h.continue;
   });

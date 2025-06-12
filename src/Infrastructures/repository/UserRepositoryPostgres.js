@@ -16,7 +16,7 @@ class UserRepositoryPostgres extends UserRepository {
     };
     const result = await this._pool.query(query);
     if (result.rowCount) {
-      throw new InvariantError('Username not available');
+      throw new InvariantError('Username already exists');
     }
   }
 

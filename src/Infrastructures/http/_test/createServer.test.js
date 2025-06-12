@@ -136,7 +136,7 @@ describe('HTTP server', () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(400);
       expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('Username not available');
+      expect(responseJson.message).toEqual('Username already exists');
     });
 
     it('Should handle server error correctly', async () => {
