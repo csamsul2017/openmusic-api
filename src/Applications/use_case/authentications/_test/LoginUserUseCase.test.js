@@ -1,7 +1,7 @@
 const LoginUserUseCase = require('../LoginUserUseCase');
 const UserRepository = require('../../../../Domains/users/UserRepository');
 const PasswordHash = require('../../../security/PasswordHash');
-const TokenGenerator = require('../../../security/TokenGenerator');
+const TokenManager = require('../../../security/TokenManager');
 
 describe('LoginUserUseCase', () => {
   it('Should orchestrating the login user correctly', async () => {
@@ -10,29 +10,33 @@ describe('LoginUserUseCase', () => {
       password: 'joko123',
     };
     const mockUserFromDb = {
+      id: 'user-123',
       username: 'joko',
       password: 'joko123',
     };
-    const mockAccessToken = 'this is mock token';
+    const mockAccessToken = 'this is mock access token';
+    const mockRefreshToken = 'this is mock refresh token';
     const mockUserRepository = new UserRepository();
     const mockPasswordHash = new PasswordHash();
-    const mockTokenGenerator = new TokenGenerator();
+    const mockTokenManager = new TokenManager();
 
     mockUserRepository.findByUsername = jest
       .fn()
       .mockResolvedValue(mockUserFromDb);
     mockPasswordHash.compare = jest.fn().mockResolvedValue(true);
-    mockTokenGenerator.generate = jest.fn().mockReturnValue(mockAccessToken);
+    mockTokenManager.generateAccessToken = jest
+      .fn()
+      .mockReturnValue(mockAccessToken);
+    mockTokenManager.generateRefreshToken = jest
+      .fn()
+      .mockReturnValue(mockRefreshToken);
 
     const mockLoginUserUseCase = new LoginUserUseCase({
-      mockUserRepository,
-      mockPasswordHash,
-      mockTokenGenerator,
+      userRepository: mockUserRepository,
+      passwordHash: mockPasswordHash,
+      tokenManager: mockTokenManager,
     });
-    const result = await mockLoginUserUseCase.execute(
-      useCasePayload.username,
-      useCasePayload.password,
-    );
+    const result = await mockLoginUserUseCase.execute(useCasePayload);
 
     expect(mockUserRepository.findByUsername).toHaveBeenCalledWith(
       useCasePayload.username,
@@ -41,11 +45,13 @@ describe('LoginUserUseCase', () => {
       useCasePayload.password,
       mockUserFromDb.password,
     );
-    expect(mockTokenGenerator.generate).toHaveBeenCalledWith({
-      id: 'user-123',
-      username: 'joko',
-    });
-    expect(result.token).toEqual(mockAccessToken);
-    expect(result.user).not.toHaveProperty('password');
+    expect(mockTokenManager.generateAccessToken).toHaveBeenCalledWith(
+      'user-123',
+    );
+    expect(mockTokenManager.generateRefreshToken).toHaveBeenCalledWith(
+      'user-123',
+    );
+    expect(result.accessToken).toEqual(mockAccessToken);
+    expect(result.refreshToken).toEqual(mockRefreshToken);
   });
 });
