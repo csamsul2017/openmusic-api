@@ -23,6 +23,15 @@ const UsersTableTestHelper = {
     return result.rows;
   },
 
+  async findByUsername(username) {
+    const query = {
+      text: 'SELECT * FROM users WHERE username = $1',
+      values: [username],
+    };
+    const result = pool.query(query);
+    return result.rows;
+  },
+
   async cleanTable() {
     await pool.query('TRUNCATE users CASCADE');
   },

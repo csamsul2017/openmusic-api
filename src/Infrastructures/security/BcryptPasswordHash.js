@@ -1,4 +1,5 @@
 const PasswordHash = require('../../Applications/security/PasswordHash');
+const AuthenticationError = require('../../Commons/exceptions/AuthenticationError');
 
 class BcryptPasswordHash extends PasswordHash {
   constructor(bcrypt, saltRound = 10) {
@@ -8,7 +9,15 @@ class BcryptPasswordHash extends PasswordHash {
   }
 
   async hash(password) {
-    return this._bcrypt.hash(password, this._saltRound);
+    return await this._bcrypt.hash(password, this._saltRound);
+  }
+
+  async compare(plainPassword, encryptedPassword) {
+    const result = await this._bcrypt.compare(plainPassword, encryptedPassword);
+    if (!result) {
+      throw new AuthenticationError('Password incorrectly');
+    }
+    return result;
   }
 }
 
