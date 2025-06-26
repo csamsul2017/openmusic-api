@@ -1,5 +1,6 @@
 const LoginUserUseCase = require('../LoginUserUseCase');
 const UserRepository = require('../../../../Domains/users/UserRepository');
+const AuthRepository = require('../../../../Domains/authentications/AuthRepository');
 const PasswordHash = require('../../../security/PasswordHash');
 const TokenManager = require('../../../security/TokenManager');
 
@@ -17,12 +18,14 @@ describe('LoginUserUseCase', () => {
     const mockAccessToken = 'this is mock access token';
     const mockRefreshToken = 'this is mock refresh token';
     const mockUserRepository = new UserRepository();
+    const mockAuthRepository = new AuthRepository();
     const mockPasswordHash = new PasswordHash();
     const mockTokenManager = new TokenManager();
 
     mockUserRepository.findByUsername = jest
       .fn()
       .mockResolvedValue(mockUserFromDb);
+    mockAuthRepository.addRefreshToken = jest.fn().mockResolvedValue();
     mockPasswordHash.compare = jest.fn().mockResolvedValue(true);
     mockTokenManager.generateAccessToken = jest
       .fn()
@@ -33,6 +36,7 @@ describe('LoginUserUseCase', () => {
 
     const mockLoginUserUseCase = new LoginUserUseCase({
       userRepository: mockUserRepository,
+      authRepository: mockAuthRepository,
       passwordHash: mockPasswordHash,
       tokenManager: mockTokenManager,
     });
@@ -40,6 +44,10 @@ describe('LoginUserUseCase', () => {
 
     expect(mockUserRepository.findByUsername).toHaveBeenCalledWith(
       useCasePayload.username,
+    );
+    expect(mockAuthRepository.addRefreshToken).toHaveBeenCalledWith(
+      mockRefreshToken,
+      mockUserFromDb.id,
     );
     expect(mockPasswordHash.compare).toHaveBeenCalledWith(
       useCasePayload.password,

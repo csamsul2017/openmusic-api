@@ -1,7 +1,9 @@
 const Hapi = require('@hapi/hapi');
+const Jwt = require('@hapi/jwt');
 const ClientError = require('../../Commons/exceptions/ClientError');
 const DomainErrorTranslator = require('../../Commons/exceptions/DomainErrorTranslator');
 const users = require('../../Interfaces/http/api/users');
+const authentications = require('../../Interfaces/http/api/authentications/index');
 const config = require('../../Commons/config');
 
 const createServer = async (container) => {
@@ -10,7 +12,28 @@ const createServer = async (container) => {
     port: config.app.port,
     debug: config.app.debug,
   });
-  await server.register([{ plugin: users, options: { container } }]);
+  await server.register([
+    { plugin: users, options: { container } },
+    { plugin: Jwt },
+    { plugin: authentications, options: { container } },
+  ]);
+
+  server.auth.strategy('openmusicapp_jwt', 'jwt', {
+    keys: config.security.accessTokenKey,
+    verify: {
+      aud: false,
+      iss: false,
+      sub: false,
+      maxAgeSec: config.security.accessTokenAge,
+    },
+    validate: (artifacts) => ({
+      isValid: true,
+      credentials: {
+        id: artifacts.decoded.payload.id,
+        username: artifacts.decoded.payload.username,
+      },
+    }),
+  });
 
   server.ext('onPreResponse', (request, h) => {
     // mendapatkan konteks response dari request

@@ -1,8 +1,10 @@
 const LoginUser = require('../../../Domains/authentications/entities/LoginUser');
 
 class LoginUserUseCase {
-  constructor({ userRepository, passwordHash, tokenManager }) {
+  constructor({ userRepository, authRepository, passwordHash, tokenManager }) {
+    // Dependency injection, yg dikirim dari container
     this._userRepository = userRepository;
+    this._authRepository = authRepository;
     this._passwordHash = passwordHash;
     this._tokenManager = tokenManager;
   }
@@ -10,12 +12,11 @@ class LoginUserUseCase {
   async execute(useCasePayload) {
     const loginUser = new LoginUser(useCasePayload);
     const user = await this._userRepository.findByUsername(loginUser.username);
-    await this._passwordHash.compare(
-      useCasePayload.password,
-      loginUser.password,
-    );
-    const accessToken = this._tokenManager.generateAccessToken(user.id);
+    await this._passwordHash.compare(useCasePayload.password, user.password);
+    const accessToken = await this._tokenManager.generateAccessToken(user.id);
     const refreshToken = this._tokenManager.generateRefreshToken(user.id);
+    // console.log(user);
+    await this._authRepository.addRefreshToken(refreshToken, user.id);
     return {
       accessToken: accessToken,
       refreshToken: refreshToken,

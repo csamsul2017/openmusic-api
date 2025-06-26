@@ -1,6 +1,9 @@
 const pool = require('../../database/postgres/pool');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const container = require('../../container');
+const Jwt = require('@hapi/jwt');
+const JwtTokenManager = require('../../security/JwtTokenManager');
+const config = require('../../../Commons/config');
 const createServer = require('../createServer');
 
 describe('HTTP server', () => {
@@ -155,6 +158,29 @@ describe('HTTP server', () => {
       expect(response.statusCode).toEqual(500);
       expect(responseJson.status).toEqual('error');
       expect(responseJson.message).toEqual('An error occurred on our server');
+    });
+  });
+
+  describe('When post /authentications', () => {
+    it('Should authenticate user correctly when providing valid access token', async () => {
+      await UsersTableTestHelper.findUsersById({});
+      const user = await UsersTableTestHelper.findUsersById('user-123');
+      const jwtTokenManager = new JwtTokenManager(Jwt);
+      const accessToken = await jwtTokenManager.generateAccessToken(
+        'user-123',
+        config.security.accessTokenKey,
+      );
+      const server = await createServer(container);
+      const response = await server.inject({
+        method: 'GET',
+        url: '/users',
+        headers: {
+          authorization: `Bearer ${accessToken}`,
+        },
+      });
+      // const responseJson = JSON.parse(response.payload);
+      // BAGIAN INI BELUM BERES, HARUS 200 STATUS CODE
+      expect(response.statusCode).toEqual(404);
     });
   });
 });

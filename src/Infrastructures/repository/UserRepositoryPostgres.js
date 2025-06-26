@@ -34,13 +34,14 @@ class UserRepositoryPostgres extends UserRepository {
 
   async findByUsername(username) {
     const query = {
-      text: 'SELECT username FROM users WHERE username = $1',
+      text: 'SELECT id, password FROM users WHERE username = $1',
       values: [username],
     };
     const result = await this._pool.query(query);
     if (!result.rowCount) {
       throw new NotFoundError('Username not found');
     }
+    return result.rows[0];
   }
 }
 

@@ -32,6 +32,15 @@ const UsersTableTestHelper = {
     return result.rows;
   },
 
+  async findByRefreshToken(token) {
+    const query = {
+      text: 'SELECT * FROM authentications WHERE token = $1',
+      values: [token],
+    };
+    const result = await pool.query(query);
+    return result.rows[0];
+  },
+
   async cleanTable() {
     await pool.query('TRUNCATE users CASCADE');
   },

@@ -1,4 +1,5 @@
 const TokenManager = require('../../Applications/security/TokenManager');
+const Config = require('../../Commons/config');
 
 class JwtTokenManager extends TokenManager {
   constructor(jwt) {
@@ -6,12 +7,12 @@ class JwtTokenManager extends TokenManager {
     this._jwt = jwt;
   }
 
-  async generateAccessToken(userId, tokenKey) {
-    return this._jwt.token.generate(userId, tokenKey);
+  generateAccessToken(userId) {
+    return this._jwt.token.generate(userId, Config.security.accessTokenKey);
   }
 
-  generateRefreshToken(userId, tokenKey) {
-    return this._jwt.token.generate(userId, tokenKey);
+  generateRefreshToken(userId) {
+    return this._jwt.token.generate(userId, Config.security.refreshTokenKey);
   }
 }
 
