@@ -12,5 +12,8 @@ describe('UserRepository interface', () => {
     await expect(userRepository.findByUsername('')).rejects.toThrow(
       'USER_REPOSITORY.METHOD_NOT_IMPLEMENTED',
     );
+    await expect(userRepository.getMyProfile('')).rejects.toThrow(
+      'USER_REPOSITORY.METHOD_NOT_IMPLEMENTED',
+    );
   });
 });
